@@ -1,0 +1,54 @@
+src/
+│
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   └── logo/
+│
+├── components/
+│   ├── auth/
+│   ├── chat/
+│   ├── dashboard/
+│   ├── layout/
+│   ├── profile/
+│   ├── symptom/
+│   └── ui/
+│
+├── context/
+│   ├── AuthContext.jsx
+│   ├── ThemeContext.jsx
+│   └── ChatContext.jsx
+│
+├── hooks/
+│   ├── useAuth.js
+│   ├── useTheme.js
+│   └── useChat.js
+│
+├── layouts/
+│   ├── AuthLayout.jsx
+│   └── MainLayout.jsx
+│
+├── pages/
+│   ├── auth/
+│   ├── dashboard/
+│   ├── chat/
+│   ├── symptom/
+│   └── profile/
+│
+├── routes/
+│   ├── AppRoutes.jsx
+│   └── ProtectedRoute.jsx
+│
+├── services/
+│   ├── api.js
+│   ├── authService.js
+│   ├── chatService.js
+│   └── symptomService.js
+│
+├── styles/
+│
+├── utils/
+│
+├── App.jsx
+├── main.jsx
+└── index.css

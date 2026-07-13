@@ -1,6 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+
+import { useAuth } from "../../context/AuthContext";
 
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
@@ -13,7 +16,12 @@ import Input from "../ui/Input";
 import Logo from "../ui/Logo";
 
 function LoginForm() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -30,12 +38,28 @@ function LoginForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData);
+    setLoading(true);
+    setError("");
 
-    // Backend login comes in Step 8
+    const result = await login(
+      formData.email,
+      formData.password
+    );
+
+    setLoading(false);
+
+    if (result.success) {
+      toast.success("Login Successful");
+
+      navigate("/dashboard");
+    } else {
+      setError(result.message);
+
+      toast.error(result.message);
+    }
   };
 
   return (
@@ -79,10 +103,8 @@ function LoginForm() {
             rightElement={
               <button
                 type="button"
-                onClick={() =>
-                  setShowPassword(!showPassword)
-                }
-                className="text-slate-400"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-slate-400 hover:text-white"
               >
                 {showPassword ? (
                   <VisibilityOffIcon />
@@ -93,18 +115,16 @@ function LoginForm() {
             }
           />
 
-          <div className="mb-8 mt-2 flex justify-between text-sm">
+          <div className="mb-6 mt-2 flex items-center justify-between text-sm">
             <label className="flex items-center">
               <input
                 type="checkbox"
                 name="remember"
                 checked={formData.remember}
                 onChange={handleChange}
+                className="mr-2"
               />
-
-              <span className="ml-2">
-                Remember Me
-              </span>
+              Remember Me
             </label>
 
             <button
@@ -115,11 +135,20 @@ function LoginForm() {
             </button>
           </div>
 
-          <Button type="submit">
-            Sign In
+          {error && (
+            <p className="mb-4 text-sm text-red-500">
+              {error}
+            </p>
+          )}
+
+          <Button
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Signing In..." : "Sign In"}
           </Button>
 
-          <p className="mt-8 text-center">
+          <p className="mt-8 text-center text-slate-300">
             Don't have an account?
 
             <Link

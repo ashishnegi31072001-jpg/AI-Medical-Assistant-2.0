@@ -7,6 +7,11 @@ import {
 } from "../../services/reportService";
 import HealthCard from "./HealthCard";
 import HealthTrendChart from "./HealthTrendChart";
+import ReportHeader from "./ReportHeader";
+import SectionCard from "./SectionCard";
+import ActionButtons from "./ActionButtons";
+import HealthScoreGauge from "./HealthScoreGauge";
+import DashboardSummary from "./DashboardSummary";
 
 function ReportHistory({ refresh }) {
   const [reports, setReports] = useState([]);
@@ -80,9 +85,11 @@ function ReportHistory({ refresh }) {
   return (
     <div className="mt-10 rounded-2xl bg-slate-900 p-8">
 
-      <h2 className="mb-6 text-3xl font-bold">
-        📄 Previous Medical Reports
-      </h2>
+     <DashboardSummary reports={reports} />
+
+<h2 className="mb-6 text-3xl font-bold">
+  📄 Previous Medical Reports
+</h2>
 
       {reports.length === 0 ? (
 
@@ -101,14 +108,11 @@ function ReportHistory({ refresh }) {
               className="rounded-xl bg-slate-800 p-6 shadow-lg"
             >
 
-              <h3 className="text-xl font-bold">
-                📄 {report.filename}
-              </h3>
-
-              <p className="mt-2 text-sm text-slate-400">
-                Uploaded{" "}
-                {new Date(report.createdAt).toLocaleString()}
-              </p>
+             <ReportHeader
+    filename={report.filename}
+    createdAt={report.createdAt}
+    healthScore={report.aiAnalysis?.healthScore}
+/>
 
               <div className="mt-6 rounded-xl bg-slate-900 p-5">
 
@@ -128,27 +132,26 @@ function ReportHistory({ refresh }) {
 
     {/* Health Cards */}
 
-    <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-      <HealthCard
-        title="Health Score"
-        value={`${report.aiAnalysis?.healthScore ?? "N/A"}/100`}
-        status="Overall"
-        color="bg-green-700"
-      />
+      <div className="rounded-2xl bg-slate-800 p-6">
+  <HealthScoreGauge
+    score={report.aiAnalysis?.healthScore || 0}
+  />
+</div>
       <HealthCard
   title="Risk Level"
   value={report.aiAnalysis?.riskLevel ?? "Unknown"}
   status="Assessment"
-  color={
-    report.aiAnalysis?.riskLevel === "Healthy"
-      ? "bg-green-700"
-      : report.aiAnalysis?.riskLevel === "Low Risk"
-      ? "bg-yellow-600"
-      : report.aiAnalysis?.riskLevel === "Moderate Risk"
-      ? "bg-orange-600"
-      : "bg-red-700"
-  }
+ color={
+  report.aiAnalysis?.riskLevel === "Healthy"
+    ? "bg-green-600"
+    : report.aiAnalysis?.riskLevel === "Low Risk"
+    ? "bg-yellow-500"
+    : report.aiAnalysis?.riskLevel === "Moderate Risk"
+    ? "bg-orange-500"
+    : "bg-red-600"
+}
 />
 
       <HealthCard
@@ -218,19 +221,19 @@ function ReportHistory({ refresh }) {
 
     </div>
 
-   <div className="mt-8 rounded-xl bg-slate-800 p-5">
-  <h3 className="mb-3 text-xl font-bold text-red-400">
-    🩺 Possible Diseases
-  </h3>
-
+  <SectionCard
+  title="Possible Diseases"
+  icon="🩺"
+  color="text-red-400"
+>
   {report.aiAnalysis?.possibleDiseases?.length > 0 ? (
     <ul className="list-disc pl-6 space-y-2">
       {report.aiAnalysis.possibleDiseases.map((disease, index) => (
-       <li key={index}>
-  {typeof disease === "object"
-    ? disease.name || JSON.stringify(disease)
-    : disease}
-</li>
+        <li key={index}>
+          {typeof disease === "object"
+            ? disease.name || JSON.stringify(disease)
+            : disease}
+        </li>
       ))}
     </ul>
   ) : (
@@ -238,57 +241,90 @@ function ReportHistory({ refresh }) {
       No disease detected.
     </p>
   )}
-</div> 
+</SectionCard>
 
 
-<div className="mt-6 rounded-xl bg-slate-800 p-5">
-  <h3 className="mb-3 text-xl font-bold text-green-400">
-    💊 Recommendations
-  </h3>
-
-  <ul className="list-disc pl-6 space-y-2">
-  {report.aiAnalysis?.recommendations?.map((item, index) => (
-    <li key={index}>
-      {typeof item === "object"
-        ? item.advice || JSON.stringify(item)
-        : item}
-    </li>
-  ))}
-</ul>
-</div>
-<div className="mt-6 rounded-xl bg-slate-800 p-5">
-  <h3 className="mb-3 text-xl font-bold text-cyan-400">
-    🥗 Lifestyle Advice
-  </h3>
-
-  <ul className="list-disc pl-6 space-y-2">
-    {report.aiAnalysis?.lifestyleAdvice?.map((item, index) => (
-     <li key={index}>
-  {typeof item === "object"
-    ? item.advice || JSON.stringify(item)
-    : item}
-</li>
-    ))}
-  </ul>
-</div>
-<div className="mt-6 rounded-xl bg-slate-800 p-5">
-  <h3 className="mb-3 text-xl font-bold text-yellow-400">
-    ⚠ Warning Signs
-  </h3>
-
-  <ul className="list-disc pl-6 space-y-2">
-    {report.aiAnalysis?.warningSigns?.map((item, index) => (
-      <li key={index}>
-  {typeof item === "object"
-    ? item.warning || item.advice || JSON.stringify(item)
-    : item}
-</li>
-    ))}
-  </ul>
-</div>
-<div className="mt-6 rounded-xl bg-slate-800 p-4 italic text-slate-400">
-  {report.aiAnalysis?.disclaimer}
-</div>
+<SectionCard
+  title="Recommendations"
+  icon="💊"
+  color="text-green-400"
+>
+  {report.aiAnalysis?.recommendations?.length > 0 ? (
+    <ul className="space-y-3">
+      {report.aiAnalysis.recommendations.map((item, index) => (
+        <li
+          key={index}
+          className="rounded-lg bg-slate-700 p-3"
+        >
+          ✅ {typeof item === "object"
+            ? item.advice || JSON.stringify(item)
+            : item}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-slate-400">
+      No recommendations available.
+    </p>
+  )}
+</SectionCard>
+<SectionCard
+  title="Lifestyle Advice"
+  icon="🥗"
+  color="text-cyan-400"
+>
+  {report.aiAnalysis?.lifestyleAdvice?.length > 0 ? (
+    <ul className="space-y-3">
+      {report.aiAnalysis.lifestyleAdvice.map((item, index) => (
+        <li
+          key={index}
+          className="rounded-lg bg-slate-700 p-3"
+        >
+          🌿 {typeof item === "object"
+            ? item.advice || JSON.stringify(item)
+            : item}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-slate-400">
+      No lifestyle advice available.
+    </p>
+  )}
+</SectionCard>
+<SectionCard
+  title="Warning Signs"
+  icon="⚠"
+  color="text-yellow-400"
+>
+  {report.aiAnalysis?.warningSigns?.length > 0 ? (
+    <ul className="space-y-3">
+      {report.aiAnalysis.warningSigns.map((item, index) => (
+        <li
+          key={index}
+          className="rounded-lg bg-slate-700 p-3"
+        >
+          🚨 {typeof item === "object"
+            ? item.warning || item.advice || JSON.stringify(item)
+            : item}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-slate-400">
+      No warning signs detected.
+    </p>
+  )}
+</SectionCard>
+<SectionCard
+  title="Medical Disclaimer"
+  icon="📄"
+  color="text-slate-300"
+>
+  <p className="italic text-slate-300 leading-7">
+    {report.aiAnalysis?.disclaimer}
+  </p>
+</SectionCard>
 
     
       
@@ -299,24 +335,10 @@ function ReportHistory({ refresh }) {
 
               </div>
 
-              <div className="mt-6 flex gap-3">
-
-                <button
-                  onClick={() => handleDownload(report)}
-                  className="rounded-lg bg-green-600 px-5 py-2 font-semibold hover:bg-green-700"
-                >
-                  📥 Download PDF
-                </button>
-
-                <button
-                  onClick={() => handleDelete(report._id)}
-                  className="rounded-lg bg-red-600 px-5 py-2 font-semibold hover:bg-red-700"
-                >
-                  🗑 Delete
-                </button>
-
-              </div>
-
+             <ActionButtons
+  onDownload={() => handleDownload(report)}
+  onDelete={() => handleDelete(report._id)}
+/>
             </div>
 
           ))}

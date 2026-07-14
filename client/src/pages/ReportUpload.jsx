@@ -35,10 +35,7 @@ function ReportUpload() {
       );
 
       setResult(response.data);
-
-      // Clear selected file after upload
       setFile(null);
-
     } catch (error) {
       console.error(error);
 
@@ -61,66 +58,141 @@ function ReportUpload() {
 
         <div className="flex-1 overflow-y-auto p-10">
 
-          <h1 className="mb-8 text-4xl font-bold">
-            📄 AI Medical Report Analysis
-          </h1>
+          {/* ================= HEADER ================= */}
 
-          {/* Upload Card */}
-          <div className="rounded-2xl bg-slate-900 p-8 shadow-lg">
+          <div className="mb-8">
+            <h1 className="flex items-center gap-3 text-5xl font-bold">
+              📄 AI Medical Report Analysis
+            </h1>
 
-            <input
-              type="file"
-              accept=".pdf"
-              onChange={(e) => setFile(e.target.files[0])}
-              className="mb-6 block w-full rounded-lg border border-slate-700 bg-slate-800 p-3 text-white"
-            />
+            <p className="mt-3 text-lg text-slate-400">
+              Upload your medical report in PDF format.
+              Our AI will analyze your report and generate
+              a complete health assessment.
+            </p>
+          </div>
+
+          {/* ================= Upload Card ================= */}
+
+          <div className="rounded-3xl border border-slate-700 bg-slate-900 p-10 shadow-2xl">
+
+            <div className="mb-6">
+              <label className="mb-3 block text-lg font-semibold">
+                Select Medical Report
+              </label>
+
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="
+                w-full
+                rounded-xl
+                border
+                border-slate-600
+                bg-slate-800
+                p-4
+                text-white
+                file:mr-4
+                file:rounded-lg
+                file:border-0
+                file:bg-blue-600
+                file:px-5
+                file:py-2
+                file:text-white
+                file:cursor-pointer
+                hover:file:bg-blue-700
+                "
+              />
+            </div>
 
             {file && (
-              <div className="mb-5 text-slate-300">
-                <strong>Selected File:</strong> {file.name}
+              <div className="mb-6 rounded-xl bg-slate-800 p-4">
+                <p className="text-green-400">
+                  ✅ Selected File
+                </p>
+
+                <p className="mt-1 text-slate-300">
+                  {file.name}
+                </p>
               </div>
             )}
 
             <button
               onClick={handleUpload}
               disabled={loading}
-              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400"
+              className="
+              w-full
+              rounded-xl
+              bg-blue-600
+              py-4
+              text-xl
+              font-bold
+              transition-all
+              duration-300
+              hover:bg-blue-700
+              hover:scale-[1.02]
+              disabled:cursor-not-allowed
+              disabled:bg-blue-400
+              "
             >
-              {loading ? "Analyzing..." : "Upload & Analyze"}
+              {loading
+                ? "🤖 AI is Analyzing..."
+                : "🚀 Upload & Analyze"}
             </button>
-
           </div>
 
-          {/* Loading */}
+          {/* ================= Loading ================= */}
+
           {loading && (
-            <div className="mt-8 rounded-xl bg-slate-900 p-6 text-center text-xl animate-pulse">
-              🤖 AI is reading your medical report...
-            </div>
-          )}
+            <div className="mt-8 rounded-2xl border border-blue-700 bg-slate-900 p-8 text-center shadow-lg">
 
-          {/* AI Analysis */}
-          {result && (
-            <div className="mt-8 rounded-2xl bg-slate-900 p-8 shadow-lg">
+              <div className="text-6xl animate-bounce">
+                🤖
+              </div>
 
-              <h2 className="mb-6 text-3xl font-bold text-blue-400">
-                🤖 AI Medical Analysis
+              <h2 className="mt-4 text-2xl font-bold">
+                AI is reading your report...
               </h2>
 
-              <div className="mb-6 rounded-lg bg-slate-800 p-4">
-                <p>
-                  <strong>Uploaded File:</strong> {result.filename}
-                </p>
+              <p className="mt-2 text-slate-400">
+                This usually takes 10–30 seconds.
+              </p>
+
+            </div>
+          )}
+
+          {/* ================= Current Upload ================= */}
+
+          {result && (
+            <div className="mt-8 rounded-3xl border border-green-700 bg-slate-900 p-8 shadow-xl">
+
+              <div className="flex items-center justify-between">
+
+                <h2 className="text-3xl font-bold text-green-400">
+                  ✅ Report Uploaded Successfully
+                </h2>
+
+                <span className="rounded-full bg-green-600 px-4 py-2 text-sm font-semibold">
+                  AI READY
+                </span>
+
               </div>
 
-              <div className="rounded-lg bg-slate-800 p-6 whitespace-pre-wrap leading-8 text-slate-200">
-                {result.analysis}
+              <div className="mt-6 rounded-xl bg-slate-800 p-5">
+
+                <p className="text-lg">
+                  <strong>📄 File:</strong> {result.filename}
+                </p>
+
               </div>
 
             </div>
           )}
 
-          {/* Previous Reports */}
-          <div className="mt-10">
+          {/* ================= Previous Reports ================= */}
+
+          <div className="mt-12">
             <ReportHistory refresh={result} />
           </div>
 

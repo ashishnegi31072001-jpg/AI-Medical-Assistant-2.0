@@ -15,7 +15,7 @@ import DashboardSummary from "./DashboardSummary";
 
 function ReportHistory({ refresh }) {
   const [reports, setReports] = useState([]);
-
+  const [search, setSearch] = useState("");
  useEffect(() => {
   loadReports();
 }, [refresh]);
@@ -79,7 +79,9 @@ function ReportHistory({ refresh }) {
     }
   };
 
-
+const filteredReports = reports.filter((report) =>
+  report.filename.toLowerCase().includes(search.toLowerCase())
+);
  
 
   return (
@@ -90,8 +92,17 @@ function ReportHistory({ refresh }) {
 <h2 className="mb-6 text-3xl font-bold">
   📄 Previous Medical Reports
 </h2>
+<div className="mb-6">
+  <input
+    type="text"
+    placeholder="🔍 Search reports..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none"
+  />
+</div>
 
-      {reports.length === 0 ? (
+      {filteredReports.length === 0 ? (
 
         <p className="text-slate-400">
           No reports uploaded yet.
@@ -101,7 +112,7 @@ function ReportHistory({ refresh }) {
 
         <div className="space-y-6">
 
-          {reports.map((report) => (
+          {filteredReports.map((report) => (
 
             <div
               key={report._id}

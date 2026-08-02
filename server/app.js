@@ -9,6 +9,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const symptomRoutes = require("./routes/symptomRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const ragRoutes = require("./routes/ragRoutes");
+const reportChatRoutes = require("./routes/reportChatRoutes");
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/symptoms", symptomRoutes);
 app.use("/api/report", reportRoutes);
 app.use("/api/rag", ragRoutes);
+app.use("/api/report-chat", reportChatRoutes);
 
 // =======================
 // Home Route

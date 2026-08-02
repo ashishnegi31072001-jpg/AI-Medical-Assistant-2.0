@@ -12,13 +12,22 @@ import SectionCard from "./SectionCard";
 import ActionButtons from "./ActionButtons";
 import HealthScoreGauge from "./HealthScoreGauge";
 import DashboardSummary from "./DashboardSummary";
+import BiomarkerComparison from "./BiomarkerComparison";
+import HealthImprovementSummary from "./HealthImprovementSummary";
+import BiomarkerTrendChart from "./BiomarkerTrendChart";
+import ExportAIReport from "./ExportAIReport";
+import ExportImage from "./ExportImage";
+import ReportChat from "./ReportChat";
+
+
 
 function ReportHistory({ refresh }) {
   const [reports, setReports] = useState([]);
   const [search, setSearch] = useState("");
- useEffect(() => {
-  loadReports();
-}, [refresh]);
+
+  useEffect(() => {
+    loadReports();
+  }, [refresh]);
 
   const loadReports = async () => {
     try {
@@ -58,9 +67,7 @@ function ReportHistory({ refresh }) {
         }
       );
 
-      const url = window.URL.createObjectURL(
-        new Blob([response.data])
-      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
 
       const link = document.createElement("a");
 
@@ -72,295 +79,273 @@ function ReportHistory({ refresh }) {
       link.remove();
 
       window.URL.revokeObjectURL(url);
-
     } catch (error) {
       console.error(error);
       alert("Download failed.");
     }
   };
 
-const filteredReports = reports.filter((report) =>
-  report.filename.toLowerCase().includes(search.toLowerCase())
-);
- 
+ const filteredReports = [...reports]
+  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  .filter((report) =>
+    report.filename.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="mt-10 rounded-2xl bg-slate-900 p-8">
+      <DashboardSummary reports={reports} />
 
-     <DashboardSummary reports={reports} />
+      <h2 className="mb-6 text-3xl font-bold">
+        📄 Previous Medical Reports
+      </h2>
 
-<h2 className="mb-6 text-3xl font-bold">
-  📄 Previous Medical Reports
-</h2>
-<div className="mb-6">
-  <input
-    type="text"
-    placeholder="🔍 Search reports..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none"
-  />
-</div>
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="🔍 Search reports..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 text-white placeholder:text-slate-400 focus:border-blue-500 focus:outline-none"
+        />
+      </div>
 
       {filteredReports.length === 0 ? (
-
-        <p className="text-slate-400">
-          No reports uploaded yet.
-        </p>
-
+        <p className="text-slate-400">No reports uploaded yet.</p>
       ) : (
-
         <div className="space-y-6">
+          {filteredReports.map((report, index) => {
+            const previousReport = filteredReports[index + 1];
 
-          {filteredReports.map((report) => (
+            const currentScore = report.aiAnalysis?.healthScore || 0;
+            const previousScore = previousReport?.aiAnalysis?.healthScore || 0;
 
-            <div
-              key={report._id}
-              className="rounded-xl bg-slate-800 p-6 shadow-lg"
-            >
+            const scoreDifference = previousReport
+              ? currentScore - previousScore
+              : null;
 
-             <ReportHeader
-    filename={report.filename}
-    createdAt={report.createdAt}
-    healthScore={report.aiAnalysis?.healthScore}
+            return (
+             <div
+  id={`report-${report._id}`}
+  key={report._id}
+  className="rounded-xl bg-slate-800 p-6 shadow-lg"
+>
+                <ReportHeader
+                  filename={report.filename}
+                  createdAt={report.createdAt}
+                  healthScore={report.aiAnalysis?.healthScore}
+                />
+
+                {scoreDifference !== null && (
+                  <div
+                    className={`mt-5 mb-5 rounded-2xl border p-5 shadow-lg ${
+                      scoreDifference >= 0
+                        ? "border-green-500 bg-green-900/20"
+                        : "border-red-500 bg-red-900/20"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-bold">📊 Health Comparison</h3>
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-sm font-bold ${
+                          scoreDifference >= 0
+                            ? "bg-green-500 text-white"
+                            : "bg-red-500 text-white"
+                        }`}
+                      >
+                        {scoreDifference >= 0 ? "Improved" : "Declined"}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-6">
+                      <div className="rounded-xl bg-slate-800 p-4">
+                        <p className="text-slate-400">Previous Score</p>
+                        <h2 className="mt-2 text-3xl font-bold">{previousScore}</h2>
+                      </div>
+
+                      <div className="rounded-xl bg-slate-800 p-4">
+                        <p className="text-slate-400">Current Score</p>
+                        <h2 className="mt-2 text-3xl font-bold">{currentScore}</h2>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`mt-5 rounded-xl p-4 text-center text-lg font-bold ${
+                        scoreDifference >= 0 ? "bg-green-600" : "bg-red-600"
+                      }`}
+                    >
+                      {scoreDifference >= 0
+                        ? `📈 Improved by ${scoreDifference} points`
+                        : `📉 Declined by ${Math.abs(scoreDifference)} points`}
+                    </div>
+                  </div>
+                )}
+                <BiomarkerComparison
+  current={report.aiAnalysis}
+  previous={previousReport?.aiAnalysis}
 />
+                    <HealthImprovementSummary
+  current={report.aiAnalysis}
+  previous={previousReport?.aiAnalysis}
+/>
+<BiomarkerTrendChart reports={reports} />
 
-              <div className="mt-6 rounded-xl bg-slate-900 p-5">
+                <div className="mt-6 rounded-xl bg-slate-900 p-5">
+                  <h4 className="mb-4 text-xl font-bold text-blue-400">
+                    🤖 AI Analysis
+                  </h4>
 
-               <h4 className="mb-4 text-xl font-bold text-blue-400">
-  🤖 AI Analysis
-</h4>
+                  {typeof report.aiAnalysis === "string" ? (
+                    <pre className="whitespace-pre-wrap leading-7">
+                      {report.aiAnalysis}
+                    </pre>
+                  ) : (
+                    <>
+                      {/* Health Cards */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="rounded-2xl bg-slate-800 p-6">
+                          <HealthScoreGauge
+                            score={report.aiAnalysis?.healthScore || 0}
+                          />
+                        </div>
 
-{typeof report.aiAnalysis === "string" ? (
+                        <HealthCard
+                          title="Risk Level"
+                          value={report.aiAnalysis?.riskLevel ?? "Unknown"}
+                          status="Assessment"
+                          color={
+                            report.aiAnalysis?.riskLevel === "Healthy"
+                              ? "bg-green-600"
+                              : report.aiAnalysis?.riskLevel === "Low Risk"
+                              ? "bg-yellow-500"
+                              : report.aiAnalysis?.riskLevel === "Moderate Risk"
+                              ? "bg-orange-500"
+                              : "bg-red-600"
+                          }
+                        />
 
-  <pre className="whitespace-pre-wrap leading-7">
-    {report.aiAnalysis}
-  </pre>
+                        <HealthCard
+                          title="Blood Sugar"
+                          value={report.aiAnalysis?.summary?.bloodSugar?.value ?? "N/A"}
+                          status={report.aiAnalysis?.summary?.bloodSugar?.status ?? "Unknown"}
+                          color="bg-red-700"
+                        />
 
-) : (
+                        <HealthCard
+                          title="Hemoglobin"
+                          value={report.aiAnalysis?.summary?.hemoglobin?.value ?? "N/A"}
+                          status={report.aiAnalysis?.summary?.hemoglobin?.status ?? "Unknown"}
+                          color="bg-yellow-700"
+                        />
 
-  <>
+                        <HealthCard
+                          title="Vitamin D"
+                          value={report.aiAnalysis?.summary?.vitaminD?.value ?? "N/A"}
+                          status={report.aiAnalysis?.summary?.vitaminD?.status ?? "Unknown"}
+                          color="bg-orange-700"
+                        />
 
-    {/* Health Cards */}
+                        <HealthCard
+                          title="Cholesterol"
+                          value={report.aiAnalysis?.summary?.cholesterol?.value ?? "N/A"}
+                          status={report.aiAnalysis?.summary?.cholesterol?.status ?? "Unknown"}
+                          color="bg-blue-700"
+                        />
 
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <HealthCard
+                          title="HbA1c"
+                          value={report.aiAnalysis?.summary?.hba1c?.value ?? "N/A"}
+                          status={report.aiAnalysis?.summary?.hba1c?.status ?? "Unknown"}
+                          color="bg-purple-700"
+                        />
+                      </div>
 
-      <div className="rounded-2xl bg-slate-800 p-6">
-  <HealthScoreGauge
-    score={report.aiAnalysis?.healthScore || 0}
+                      <SectionCard title="Possible Diseases" icon="🩺" color="text-red-400">
+                        {report.aiAnalysis?.possibleDiseases?.length > 0 ? (
+                          <ul className="list-disc pl-6 space-y-2">
+                            {report.aiAnalysis.possibleDiseases.map((disease, i) => (
+                              <li key={i}>
+                                {typeof disease === "object"
+                                  ? disease.name || JSON.stringify(disease)
+                                  : disease}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-slate-400">No disease detected.</p>
+                        )}
+                      </SectionCard>
+
+                      <SectionCard title="Recommendations" icon="💊" color="text-green-400">
+                        {report.aiAnalysis?.recommendations?.length > 0 ? (
+                          <ul className="space-y-3">
+                            {report.aiAnalysis.recommendations.map((item, i) => (
+                              <li key={i} className="rounded-lg bg-slate-700 p-3">
+                                ✅ {typeof item === "object" ? item.advice || JSON.stringify(item) : item}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-slate-400">No recommendations available.</p>
+                        )}
+                      </SectionCard>
+
+                      <SectionCard title="Lifestyle Advice" icon="🥗" color="text-cyan-400">
+                        {report.aiAnalysis?.lifestyleAdvice?.length > 0 ? (
+                          <ul className="space-y-3">
+                            {report.aiAnalysis.lifestyleAdvice.map((item, i) => (
+                              <li key={i} className="rounded-lg bg-slate-700 p-3">
+                                🌿 {typeof item === "object" ? item.advice || JSON.stringify(item) : item}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-slate-400">No lifestyle advice available.</p>
+                        )}
+                      </SectionCard>
+
+                      <SectionCard title="Warning Signs" icon="⚠" color="text-yellow-400">
+                        {report.aiAnalysis?.warningSigns?.length > 0 ? (
+                          <ul className="space-y-3">
+                            {report.aiAnalysis.warningSigns.map((item, i) => (
+                              <li key={i} className="rounded-lg bg-slate-700 p-3">
+                                🚨 {typeof item === "object" ? item.warning || item.advice || JSON.stringify(item) : item}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-slate-400">No warning signs detected.</p>
+                        )}
+                      </SectionCard>
+
+                      <SectionCard title="Medical Disclaimer" icon="📄" color="text-slate-300">
+                        <p className="italic text-slate-300 leading-7">
+                          {report.aiAnalysis?.disclaimer}
+                        </p>
+                      </SectionCard>
+                    </>
+                  )}
+                </div>
+
+              <div className="flex flex-wrap gap-3">
+
+  <ExportAIReport report={report} />
+
+ <ExportImage reportId={`report-${report._id}`} />
+  <ActionButtons
+    onDownload={() => handleDownload(report)}
+    onDelete={() => handleDelete(report._id)}
   />
+  <ReportChat reportId={report._id} />
+
 </div>
-      <HealthCard
-  title="Risk Level"
-  value={report.aiAnalysis?.riskLevel ?? "Unknown"}
-  status="Assessment"
- color={
-  report.aiAnalysis?.riskLevel === "Healthy"
-    ? "bg-green-600"
-    : report.aiAnalysis?.riskLevel === "Low Risk"
-    ? "bg-yellow-500"
-    : report.aiAnalysis?.riskLevel === "Moderate Risk"
-    ? "bg-orange-500"
-    : "bg-red-600"
-}
-/>
-
-      <HealthCard
-        title="Blood Sugar"
-        value={
-          report.aiAnalysis?.summary?.bloodSugar?.value ??
-          "N/A"
-        }
-        status={
-          report.aiAnalysis?.summary?.bloodSugar?.status ??
-          "Unknown"
-        }
-        color="bg-red-700"
-      />
-
-      <HealthCard
-        title="Hemoglobin"
-        value={
-          report.aiAnalysis?.summary?.hemoglobin?.value ??
-          "N/A"
-        }
-        status={
-          report.aiAnalysis?.summary?.hemoglobin?.status ??
-          "Unknown"
-        }
-        color="bg-yellow-700"
-      />
-
-      <HealthCard
-        title="Vitamin D"
-        value={
-          report.aiAnalysis?.summary?.vitaminD?.value ??
-          "N/A"
-        }
-        status={
-          report.aiAnalysis?.summary?.vitaminD?.status ??
-          "Unknown"
-        }
-        color="bg-orange-700"
-      />
-
-      <HealthCard
-        title="Cholesterol"
-        value={
-          report.aiAnalysis?.summary?.cholesterol?.value ??
-          "N/A"
-        }
-        status={
-          report.aiAnalysis?.summary?.cholesterol?.status ??
-          "Unknown"
-        }
-        color="bg-blue-700"
-      />
-
-      <HealthCard
-        title="HbA1c"
-        value={
-          report.aiAnalysis?.summary?.hba1c?.value ??
-          "N/A"
-        }
-        status={
-          report.aiAnalysis?.summary?.hba1c?.status ??
-          "Unknown"
-        }
-        color="bg-purple-700"
-      />
-
-    </div>
-
-  <SectionCard
-  title="Possible Diseases"
-  icon="🩺"
-  color="text-red-400"
->
-  {report.aiAnalysis?.possibleDiseases?.length > 0 ? (
-    <ul className="list-disc pl-6 space-y-2">
-      {report.aiAnalysis.possibleDiseases.map((disease, index) => (
-        <li key={index}>
-          {typeof disease === "object"
-            ? disease.name || JSON.stringify(disease)
-            : disease}
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p className="text-slate-400">
-      No disease detected.
-    </p>
-  )}
-</SectionCard>
-
-
-<SectionCard
-  title="Recommendations"
-  icon="💊"
-  color="text-green-400"
->
-  {report.aiAnalysis?.recommendations?.length > 0 ? (
-    <ul className="space-y-3">
-      {report.aiAnalysis.recommendations.map((item, index) => (
-        <li
-          key={index}
-          className="rounded-lg bg-slate-700 p-3"
-        >
-          ✅ {typeof item === "object"
-            ? item.advice || JSON.stringify(item)
-            : item}
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p className="text-slate-400">
-      No recommendations available.
-    </p>
-  )}
-</SectionCard>
-<SectionCard
-  title="Lifestyle Advice"
-  icon="🥗"
-  color="text-cyan-400"
->
-  {report.aiAnalysis?.lifestyleAdvice?.length > 0 ? (
-    <ul className="space-y-3">
-      {report.aiAnalysis.lifestyleAdvice.map((item, index) => (
-        <li
-          key={index}
-          className="rounded-lg bg-slate-700 p-3"
-        >
-          🌿 {typeof item === "object"
-            ? item.advice || JSON.stringify(item)
-            : item}
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p className="text-slate-400">
-      No lifestyle advice available.
-    </p>
-  )}
-</SectionCard>
-<SectionCard
-  title="Warning Signs"
-  icon="⚠"
-  color="text-yellow-400"
->
-  {report.aiAnalysis?.warningSigns?.length > 0 ? (
-    <ul className="space-y-3">
-      {report.aiAnalysis.warningSigns.map((item, index) => (
-        <li
-          key={index}
-          className="rounded-lg bg-slate-700 p-3"
-        >
-          🚨 {typeof item === "object"
-            ? item.warning || item.advice || JSON.stringify(item)
-            : item}
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p className="text-slate-400">
-      No warning signs detected.
-    </p>
-  )}
-</SectionCard>
-<SectionCard
-  title="Medical Disclaimer"
-  icon="📄"
-  color="text-slate-300"
->
-  <p className="italic text-slate-300 leading-7">
-    {report.aiAnalysis?.disclaimer}
-  </p>
-</SectionCard>
-
-    
-      
-
-  </>
-
-)}
-
               </div>
-
-             <ActionButtons
-  onDownload={() => handleDownload(report)}
-  onDelete={() => handleDelete(report._id)}
-/>
-            </div>
-
-          ))}
-
-        </div>      
-
+            );
+          })}
+        </div>
       )}
-      {reports.length > 1 && (
-  <HealthTrendChart reports={reports} />
-)}
 
+      {reports.length > 1 && <HealthTrendChart reports={reports} />}
     </div>
   );
 }

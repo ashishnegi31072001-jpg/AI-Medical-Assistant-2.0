@@ -45,9 +45,28 @@ function HealthCard({
       </div>
 
       {/* Status */}
-      <div className="mt-3 inline-block rounded-full bg-white/20 px-3 py-1 text-sm font-medium text-white">
-        {status || "Unknown"}
-      </div>
+     <div className="mt-4">
+  <span
+    className={`rounded-full px-3 py-1 text-xs font-bold
+      ${
+        status?.toLowerCase().includes("normal")
+          ? "bg-green-500 text-white"
+          : status?.toLowerCase().includes("healthy")
+          ? "bg-green-500 text-white"
+          : status?.toLowerCase().includes("low")
+          ? "bg-yellow-500 text-black"
+          : status?.toLowerCase().includes("borderline")
+          ? "bg-yellow-500 text-black"
+          : status?.toLowerCase().includes("high")
+          ? "bg-red-500 text-white"
+          : status?.toLowerCase().includes("critical")
+          ? "bg-red-700 text-white"
+          : "bg-slate-700 text-white"
+      }`}
+  >
+    {status}
+  </span>
+</div>
     </div>
   );
 }

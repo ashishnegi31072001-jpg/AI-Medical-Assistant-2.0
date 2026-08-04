@@ -18,6 +18,7 @@ import BiomarkerTrendChart from "./BiomarkerTrendChart";
 import ExportAIReport from "./ExportAIReport";
 import ExportImage from "./ExportImage";
 import ReportChat from "./ReportChat";
+import HealthRecommendation from "./HealthRecommendation";
 
 
 
@@ -337,6 +338,7 @@ function ReportHistory({ refresh }) {
     onDelete={() => handleDelete(report._id)}
   />
   <ReportChat reportId={report._id} />
+  <HealthRecommendation reportId={report._id} />
 
 </div>
               </div>

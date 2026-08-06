@@ -12,6 +12,7 @@ const ragRoutes = require("./routes/ragRoutes");
 const reportChatRoutes = require("./routes/reportChatRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
 const dietPlannerRoutes = require("./routes/dietPlannerRoutes");
+const workoutPlannerRoutes = require("./routes/workoutPlannerRoutes");
 
 const app = express();
 
@@ -39,6 +40,15 @@ app.use("/api/rag", ragRoutes);
 app.use("/api/report-chat", reportChatRoutes);
 app.use("/api/recommendation", recommendationRoutes);
 app.use("/api/diet", dietPlannerRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/symptoms", symptomRoutes);
+app.use("/api/report", reportRoutes);
+app.use("/api/rag", ragRoutes);
+app.use("/api/report-chat", reportChatRoutes);
+app.use("/api/recommendation", recommendationRoutes);
+app.use("/api/diet", dietPlannerRoutes);
+app.use("/api/workout", workoutPlannerRoutes);
 // =======================
 // Home Route
 // =======================

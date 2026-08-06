@@ -20,6 +20,7 @@ import ExportImage from "./ExportImage";
 import ReportChat from "./ReportChat";
 import HealthRecommendation from "./HealthRecommendation";
 import DietPlanner from "./DietPlanner";
+import WorkoutPlanner from "./WorkoutPlanner";
 
 
 
@@ -341,6 +342,7 @@ function ReportHistory({ refresh }) {
   <ReportChat reportId={report._id} />
   <HealthRecommendation reportId={report._id} />
   <DietPlanner reportId={report._id} />
+  <WorkoutPlanner reportId={report._id} />
 
 </div>
               </div>

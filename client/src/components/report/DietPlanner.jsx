@@ -47,8 +47,32 @@ function DietPlanner({ reportId }) {
       {items?.length > 0 ? (
         <ul className="space-y-2">
           {items.map((item, index) => (
-            <li key={index}>🥗 {item}</li>
-          ))}
+  <li key={index}>
+    {typeof item === "object" ? (
+      <div className="rounded-lg bg-slate-700 p-3">
+        {item.foodGroup && (
+          <p>
+            <strong>Food Group:</strong> {item.foodGroup}
+          </p>
+        )}
+
+        {item.dailyLimit && (
+          <p>
+            <strong>Daily Limit:</strong> {item.dailyLimit}
+          </p>
+        )}
+
+        {item.recommendation && (
+          <p>
+            <strong>Recommendation:</strong> {item.recommendation}
+          </p>
+        )}
+      </div>
+    ) : (
+      <>🥗 {item}</>
+    )}
+  </li>
+))}
         </ul>
       ) : (
         <p>No suggestions available.</p>

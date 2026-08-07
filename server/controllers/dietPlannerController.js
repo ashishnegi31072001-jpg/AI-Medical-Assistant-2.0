@@ -24,6 +24,20 @@ exports.generateDiet = async (req, res) => {
       });
     }
 
+    // =====================================
+    // Return saved diet plan if available
+    // =====================================
+    if (report.dietPlan) {
+      return res.status(200).json({
+        success: true,
+        dietPlan: report.dietPlan,
+        cached: true,
+      });
+    }
+
+    // =====================================
+    // Generate new diet plan
+    // =====================================
     const response = await generateDietPlan(
       report.extractedText,
       report.aiAnalysis
@@ -40,9 +54,17 @@ exports.generateDiet = async (req, res) => {
       });
     }
 
+    // =====================================
+    // Save to MongoDB
+    // =====================================
+    report.dietPlan = dietPlan;
+
+    await report.save();
+
     return res.status(200).json({
       success: true,
       dietPlan,
+      cached: false,
     });
 
   } catch (error) {

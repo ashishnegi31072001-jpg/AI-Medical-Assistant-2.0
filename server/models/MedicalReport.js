@@ -21,9 +21,28 @@ const medicalReportSchema = new mongoose.Schema(
     },
 
     aiAnalysis: {
-  type: mongoose.Schema.Types.Mixed,
-  required: true,
-},
+      type: mongoose.Schema.Types.Mixed,
+      required: true,
+    },
+
+    // ===========================
+    // AI Generated Plans
+    // ===========================
+
+    dietPlan: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+
+    workoutPlan: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+
+    healthRecommendation: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
   {
     timestamps: true,

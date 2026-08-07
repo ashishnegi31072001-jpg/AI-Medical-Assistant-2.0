@@ -110,9 +110,19 @@ function Section({ title, items }) {
       {items?.length > 0 ? (
         <ul className="space-y-2">
           {items.map((item, index) => (
-            <li key={index}>
-              ✅ {item}
-            </li>
+           <li key={index}>
+  {typeof item === "object" ? (
+    <div className="rounded-lg bg-slate-700 p-3">
+      {Object.entries(item).map(([key, value]) => (
+        <p key={key}>
+          <strong>{key}:</strong> {String(value)}
+        </p>
+      ))}
+    </div>
+  ) : (
+    <>✅ {item}</>
+  )}
+</li>
           ))}
         </ul>
       ) : (

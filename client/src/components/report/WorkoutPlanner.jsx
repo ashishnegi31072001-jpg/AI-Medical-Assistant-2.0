@@ -146,7 +146,17 @@ function WorkoutPlanner({ reportId }) {
             <ul className="mt-3 space-y-2">
               {workoutPlan.precautions?.map((item, index) => (
                 <li key={index}>
-                  ⚠ {item}
+                 {typeof item === "object" ? (
+  <div className="rounded-lg bg-slate-700 p-3">
+    {Object.entries(item).map(([key, value]) => (
+      <p key={key}>
+        <strong>{key}:</strong> {String(value)}
+      </p>
+    ))}
+  </div>
+) : (
+  <>⚠ {item}</>
+)}
                 </li>
               ))}
             </ul>

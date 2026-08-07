@@ -24,6 +24,20 @@ exports.generateWorkout = async (req, res) => {
       });
     }
 
+    // =====================================
+    // Return saved workout plan if available
+    // =====================================
+    if (report.workoutPlan) {
+      return res.status(200).json({
+        success: true,
+        workoutPlan: report.workoutPlan,
+        cached: true,
+      });
+    }
+
+    // =====================================
+    // Generate new workout plan
+    // =====================================
     const response = await generateWorkoutPlan(
       report.extractedText,
       report.aiAnalysis
@@ -40,9 +54,17 @@ exports.generateWorkout = async (req, res) => {
       });
     }
 
+    // =====================================
+    // Save workout plan to MongoDB
+    // =====================================
+    report.workoutPlan = workoutPlan;
+
+    await report.save();
+
     return res.status(200).json({
       success: true,
       workoutPlan,
+      cached: false,
     });
 
   } catch (error) {

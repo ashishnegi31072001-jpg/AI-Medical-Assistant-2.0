@@ -24,6 +24,20 @@ exports.getRecommendations = async (req, res) => {
       });
     }
 
+    // =====================================
+    // Return saved recommendation if available
+    // =====================================
+    if (report.healthRecommendation) {
+      return res.status(200).json({
+        success: true,
+        recommendations: report.healthRecommendation,
+        cached: true,
+      });
+    }
+
+    // =====================================
+    // Generate new recommendation
+    // =====================================
     const response = await generateRecommendations(
       report.extractedText,
       report.aiAnalysis
@@ -40,9 +54,17 @@ exports.getRecommendations = async (req, res) => {
       });
     }
 
+    // =====================================
+    // Save to MongoDB
+    // =====================================
+    report.healthRecommendation = recommendations;
+
+    await report.save();
+
     return res.status(200).json({
       success: true,
       recommendations,
+      cached: false,
     });
 
   } catch (error) {
